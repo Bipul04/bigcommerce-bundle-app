@@ -78,7 +78,16 @@ export default function bundlesPage() {
     }, [currentPage, itemsPerPage, categories]);
 
     return (
-        <Panel id="bundles">
+        <Panel id="bundles"
+        action={{
+            variant: 'primary',
+            text: 'Add Bundle',
+            onClick: () => {
+              // Do some action
+            },
+          }}
+          header="Bundles List"
+        >
             <Table
                 columns={columns}
                 itemName="bundles"
