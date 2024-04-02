@@ -25,6 +25,7 @@ const HeaderlessRoutes = [
 const InnerRoutes = [
     '/products/[pid]',
     '/bundles/[bid]',
+    '/bundles/add',
 ];
 
 const HeaderTypes = {

@@ -45,7 +45,11 @@ export default function bundlesPage() {
 
     const renderAction = (id: number): ReactElement => (
         <Dropdown
-            items={[{ content: 'Edit bundle', onItemClick: () => router.push(`/bundles/${id}`), hash: 'edit' }]}
+            items={[
+                { content: 'Edit', onItemClick: () => console.log("edited"), hash: 'edit' },
+                { content: 'Edit bundle', onItemClick: () => router.push(`/bundles/${id}`), hash: 'edit_bundle' },
+                { content: 'Delete bundle', onItemClick: () => console.log("deleted"), hash: 'delete' }
+            ]}
             toggle={<Button iconOnly={<MoreHorizIcon color="secondary60" />} variant="subtle" />}
         />
     );
@@ -79,14 +83,14 @@ export default function bundlesPage() {
 
     return (
         <Panel id="bundles"
-        action={{
-            variant: 'primary',
-            text: 'Add Bundle',
-            onClick: () => {
-              // Do some action
-            },
-          }}
-          header="Bundles List"
+            action={{
+                variant: 'primary',
+                text: 'Add Bundle',
+                onClick: () => {
+                    router.push(`/bundles/add`)
+                },
+            }}
+            header="Bundles List"
         >
             <Table
                 columns={columns}
