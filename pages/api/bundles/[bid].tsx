@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { bigcommerceClient, getSession } from '../../../lib/auth';
 import { getBundleById } from '@lib/dbs/mysql';
 
 export default async function products(req: NextApiRequest, res: NextApiResponse) {

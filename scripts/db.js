@@ -68,6 +68,7 @@ CREATE TABLE \`products\` (
  \`id\` int(11) unsigned NOT NULL AUTO_INCREMENT,
  \`name\` varchar(255) NOT NULL,
  \`sub_category_id\` int(11) unsigned NOT NULL,
+ \`bc_product_id\` int(11) NOT NULL,
  PRIMARY KEY (\`id\`),
  FOREIGN KEY (\`sub_category_id\`) REFERENCES \`sub_categories\`(\`id\`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

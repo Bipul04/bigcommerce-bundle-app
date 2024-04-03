@@ -25,7 +25,6 @@ const ProductInfo = () => {
 
             // Update local data immediately (reduce latency to user)
             mutateList([...filteredList, { ...product, ...data }], false);
-
             // Update product details
             await fetch(`/api/products/${pid}?context=${encodedContext}`, {
                 method: 'PUT',

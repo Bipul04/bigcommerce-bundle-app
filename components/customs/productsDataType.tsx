@@ -25,3 +25,12 @@ type subCategoryData = {
     category_id: number;
     products: ProductsData[];
 };
+
+
+type BundleCategory = {
+    name: string;
+    price: number;
+    compared_price: number;
+    image_url: string;
+    bc_product_id: string;
+}

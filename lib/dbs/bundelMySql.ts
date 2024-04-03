@@ -50,8 +50,7 @@ export async function combineProductsBySubcategoryId(subcategoryId: number): Pro
 
         // Check if there are any products for the given subcategory
         if (productResults.length === 0) {
-            console.log(`No products found for subcategory ID: ${subcategoryId}`);
-            return []; // Return an empty array or a specific message indicating no products found
+            return [];
         }
 
         const products: any[] = productResults.map((product) => ({
@@ -82,6 +81,78 @@ export async function combineProductsBySubcategoryId(subcategoryId: number): Pro
     } catch (error) {
         console.error(`Error combining products by subcategory ID: ${subcategoryId}`, error);
         throw error; // Rethrow the error or handle it as needed
+    }
+}
+
+
+export async function crateCategories(categoryData: BundleCategory) {
+    const [results] = await pool.execute(
+        'INSERT INTO categories (name, price, compared_price, image, bc_product_id) VALUES (?, ?, ? ,?, ?)',
+        [categoryData.name, categoryData.price, categoryData.compared_price, categoryData.image_url, categoryData.bc_product_id]
+    );
+    return results;
+}
+
+
+// export async function deleteCategory(categoryId: number) {
+//     await pool.execute(
+//         `DELETE subcategories, products, variants
+//          FROM subcategories
+//          LEFT JOIN products ON subcategories.id = products.subcategory_id
+//          LEFT JOIN variants ON products.id = variants.product_id
+//          WHERE subcategories.category_id = ?;
+//          DELETE FROM categories WHERE id = ?;`,
+//         [categoryId, categoryId]
+//     );
+// }
+
+export async function deleteCategory(categoryId: number): Promise<{ success: boolean; message: string }> {
+    try {
+        // Start a transaction
+        await pool.beginTransaction();
+
+        // Step 1: Delete from variants if any exist
+        await pool.execute(
+            `DELETE FROM variants WHERE product_id IN (
+                SELECT id FROM products WHERE sub_category_id IN (
+                    SELECT id FROM sub_categories WHERE category_id = ?
+                )
+            );`,
+            [categoryId]
+        );
+
+        // Step 2: Delete from products if any exist
+        await pool.execute(
+            `DELETE FROM products WHERE sub_category_id IN (
+                SELECT id FROM sub_categories WHERE category_id = ?
+            );`,
+            [categoryId]
+        );
+
+        // Step 3: Delete from sub_categories if any exist
+        await pool.execute(
+            `DELETE FROM sub_categories WHERE category_id = ?;`,
+            [categoryId]
+        );
+
+        // Step 4: Delete from categories
+        await pool.execute(
+            `DELETE FROM categories WHERE id = ?;`,
+            [categoryId]
+        );
+
+        // Commit the transaction
+        await pool.commit();
+
+        // Return success response
+        return { success: true, message: 'Category and all related data deleted successfully.' };
+    } catch (error) {
+        // Rollback the transaction in case of error
+        await pool.rollback();
+        console.error('Error deleting category:', error);
+
+        // Return error response
+        return { success: false, message: 'Error deleting category: ' + error.message };
     }
 }
 

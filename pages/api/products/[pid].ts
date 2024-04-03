@@ -25,6 +25,8 @@ export default async function products(req: NextApiRequest, res: NextApiResponse
             try {
                 const { accessToken, storeHash } = await getSession(req);
                 const bigcommerce = bigcommerceClient(accessToken, storeHash);
+            console.log("bigcommerce post ad ", bigcommerce, req );
+
 
                 const { data } = await bigcommerce.put(`/catalog/products/${pid}`, body);
                 res.status(200).json(data);
