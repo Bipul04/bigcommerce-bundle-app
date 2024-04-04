@@ -5,7 +5,7 @@ import { Box, Button, FileUploader, Form, FormGroup, Input, Panel, } from '@bigc
 import { useSession } from 'context/session';
 import router from 'next/router';
 
-const BundleForm = () => {
+const editBundle = () => {
     const encodedContext = useSession()?.context;
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [files, setFiles] = useState<File[]>([]);
@@ -56,7 +56,7 @@ const BundleForm = () => {
     };
 
     return (
-        <Panel header="Add bundle"
+        <Panel header="Edit bundle"
         >
             <Form onSubmit={handleSubmit(onSubmit)}>
                 <FormGroup>
@@ -114,4 +114,4 @@ const BundleForm = () => {
     );
 };
 
-export default BundleForm;
+export default editBundle;

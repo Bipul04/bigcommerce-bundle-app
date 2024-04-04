@@ -1,29 +1,25 @@
 // pages/index.tsx
 import { Button, Dropdown, Modal, Panel, Small, Link as StyledLink, Table, TableSortDirection } from '@bigcommerce/big-design';
 import { MoreHorizIcon } from '@bigcommerce/big-design-icons';
-import Link from 'next/link';
 import { ReactElement, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-
-type Item = {
-    id: string;
-    name: string;
-    compared_price: string;
-    price: string;
-    bc_product_id: string;
-};
+import { alertsManager } from '@pages/_app';
+import { errorAlert, renderName, renderPrice } from '@lib/custom/bundle';
+import { useSession } from 'context/session';
 
 export default function bundlesPage() {
-    const [categories, setCategories] = useState<Item[]>([]);
+    const [categories, setCategories] = useState<CategoriesItem[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
     const [itemsPerPageOptions] = useState([10, 20, 30]);
-    const [currentItems, setCurrentItems] = useState<Item[]>([]);
+    const [currentItems, setCurrentItems] = useState<CategoriesItem[]>([]);
     const [isDelete, setIsDelete] = useState(false);
     const [deleteId, setDeleteId] = useState(0);
     const [bcProductId, setBcProductId] = useState(0);
-
+    const router = useRouter();
+    const encodedContext = useSession()?.context;
+    
     const columns = [
         {
             header: 'id',
@@ -36,22 +32,10 @@ export default function bundlesPage() {
         { header: 'Action', hideHeader: true, hash: 'id', render: ({ id, bc_product_id }) => renderAction(id, bc_product_id) },
     ];
 
-    const router = useRouter();
-
-    const renderName = (id: number, name: string): ReactElement => (
-        <Link href={`/bundles/${id}`}>
-            <StyledLink>{name}</StyledLink>
-        </Link>
-    );
-
-    const renderPrice = (price: number): string => (
-        new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price)
-    );
-
     const renderAction = (id: number, bc_product_id: number): ReactElement => (
         <Dropdown
             items={[
-                { content: 'Edit', onItemClick: () => console.log("edited"), hash: 'edit' },
+                { content: 'Edit', onItemClick: () => router.push(`/bundles/edit/${id}`), hash: 'edit' },
                 { content: 'Edit bundle', onItemClick: () => router.push(`/bundles/${id}`), hash: 'edit_bundle' },
                 { content: 'Delete bundle', onItemClick: () => setDeleteCategory(id, bc_product_id), hash: 'delete' }
             ]}
@@ -67,32 +51,41 @@ export default function bundlesPage() {
 
     const deleteCategory = async () => {
         try {
-
-
-            const response = await fetch(`/api/bundles/deleteProduct?categoryId=${deleteId}&bcProductId=${bcProductId}`, {
+            const response = await fetch(`/api/bundles/deleteProduct?categoryId=${deleteId}&bcProductId=${bcProductId}&context=${encodedContext}`, {
                 method: 'DELETE'
             });
-            
+
             const deleteCategory = await response.json();
-            console.log("deleteCategory", deleteCategory)
+            if (deleteCategory.success) {
+                fetchCategories();
+                setIsDelete(false);
+            } else {
+                alertsManager.add(errorAlert);
+                fetchCategories();
+                setIsDelete(false);
+            }
 
         } catch (error) {
-            console.error('Error fetching categories:', error);
+            alertsManager.add(errorAlert);
+            setIsDelete(false);
+            console.error('Error fetching delete:', error);
         }
     }
 
+    const fetchCategories = async () => {
+        try {
+            const response = await fetch(`/api/bundles/categories?page=${currentPage}&limit=${itemsPerPage}`);
+            const data = await response.json();
+            setCategories(data.data);
+            setTotalItems(data.pagination.totalItems);
+        } catch (error) {
+            alertsManager.add(errorAlert);
+            console.error('Error fetching categories:', error);
+        }
+    };
 
     useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await fetch(`/api/bundles/categories?page=${currentPage}&limit=${itemsPerPage}`);
-                const data = await response.json();
-                setCategories(data.data);
-                setTotalItems(data.pagination.totalItems);
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-            }
-        };
+
         fetchCategories();
     }, [currentPage, itemsPerPage]);
 

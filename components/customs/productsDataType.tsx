@@ -1,8 +1,17 @@
-// type ProductsData = {
-//     id: number;
-//     name: string;
-//     sub_category_id: number;
-// }
+type CategoriesItem = {
+    id: string;
+    name: string;
+    compared_price: string;
+    price: string;
+    bc_product_id: string;
+};
+
+interface BundleFormData {
+    name: string;
+    price: string;
+    compared_price: string;
+    image: FileList;
+}
 
 interface ProductsData {
     id: number;

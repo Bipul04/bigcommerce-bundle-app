@@ -108,9 +108,6 @@ export async function crateCategories(categoryData: BundleCategory) {
 
 export async function deleteCategory(categoryId: number): Promise<{ success: boolean; message: string }> {
     try {
-        // Start a transaction
-        await pool.beginTransaction();
-
         // Step 1: Delete from variants if any exist
         await pool.execute(
             `DELETE FROM variants WHERE product_id IN (
@@ -141,14 +138,9 @@ export async function deleteCategory(categoryId: number): Promise<{ success: boo
             [categoryId]
         );
 
-        // Commit the transaction
-        await pool.commit();
-
-        // Return success response
         return { success: true, message: 'Category and all related data deleted successfully.' };
     } catch (error) {
         // Rollback the transaction in case of error
-        await pool.rollback();
         console.error('Error deleting category:', error);
 
         // Return error response

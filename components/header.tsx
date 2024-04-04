@@ -26,6 +26,7 @@ const InnerRoutes = [
     '/products/[pid]',
     '/bundles/[bid]',
     '/bundles/add',
+    '/bundles/edit/[bid]',
 ];
 
 const HeaderTypes = {
